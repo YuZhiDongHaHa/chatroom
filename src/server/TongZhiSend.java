@@ -11,7 +11,7 @@ public class TongZhiSend extends Thread {
 	Scanner sc = new Scanner(System.in);
 	private List<Socket> list;
 	public TongZhiSend(List<Socket> list) {
-		this.list = list;
+		this.list = list; 
 	}
 	@Override
 	public void run() {

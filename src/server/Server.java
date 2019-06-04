@@ -6,58 +6,53 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
 
+/**
+ * å†™åˆ°è¿™é‡Œï¼Œå®ç°ä½¿ç”¨æ˜µç§°èŠå¤©ï¼ˆmapä¸­çš„keyï¼‰ï¼Œå‡ºç°@æ£€æµ‹æ•´å¥å­—ç¬¦ä¸²éå†keysetåŒ¹é… String str = new
+ * String(b,0,b.length); è´¦å·é‡å¤ç™»å½•çš„é—®é¢˜ é€šé“ï¼Ÿ çº¿ç¨‹æ± ï¼Ÿ
+ */
 public class Server extends Thread {
 	private Socket clientsocket;
-	private List<Socket> list;
-	public Server(Socket socket, List<Socket> list) {
-		this.clientsocket = socket;
-		this.list = list;
+	private String nickname;
+	private HashMap<String, Socket> map;
+
+	public Server(Socket clientsocket, String nickname, HashMap<String, Socket> map) {
+		super();
+		this.clientsocket = clientsocket;
+		this.nickname = nickname;
+		this.map = map;
 	}
 
 	public void run() {
-		Date date = new Date();
 		try {
-			// »ñÈ¡ÊäÈëÁ÷ºÍÊä³öÁ÷
 			BufferedReader in = new BufferedReader(new InputStreamReader(clientsocket.getInputStream()));
 			PrintWriter out = new PrintWriter(new OutputStreamWriter(clientsocket.getOutputStream()), true);
 			Method method = new Method();
-			method.NewClient(list, clientsocket);// µ÷ÓÃĞÂ¿Í»§¶ËÁ¬½ÓµÄ·½·¨
+			method.NewClient(map,nickname);// æ–°ç”¨æˆ·ä¸Šé™
 			while (true) {
 				String message = in.readLine();
-				if (message.equals("exit")) {// ÊäÈëexitÍË³ö
-					System.out.println(date);// ÈÕÖ¾
-					System.out.println(clientsocket.getPort() + "ÏÂÏß");// ÈÕÖ¾
-					method.XiaXian(clientsocket, list);// µ÷ÓÃÏÂÏÂÏßµÄ·½·¨
+				if (message.equals("exit")) {//
+					method.XiaXian(map,nickname);// è°ƒç”¨ä¸‹çº¿çš„æ–¹æ³•
 					in.close();
 					clientsocket.close();
 					break;
-				} else if (message.startsWith("@")) {// Ë½ÁÄ¸ñÊ½@¿ªÍ·¿Õ¸ñ½áÎ²
-					int end = message.indexOf(" ");// ÕÒµ½¿Õ¸ñµÄindexÎ»ÖÃ
-					String findAddr = message.substring(1, end);// »ñÈ¡µ½¶Ë¿ÚºÅµÄÊı×Ö×Ö·û´®
-					int p = Integer.parseInt(findAddr);// ×ª»»³ÉintÀàĞÍ
-					for (int i = 0; i < list.size(); i++) {// ±éÀúsocket¼¯ºÏ
-						Socket socket = list.get(i);
-						int addr = socket.getPort();// »ñÈ¡ËüµÄ¶Ë¿ÚºÅ
-						if (p == addr) {// ÕÒµ½Ë½ÁÄÄ¿±ê¶ÔÏósocketµÄ¶Ë¿ÚºÅ
-							int addr2 = clientsocket.getPort();// »ñÈ¡µ±Ç°¶ÔÏó¶Ë¿ÚºÅ
-							PrintWriter pw = new PrintWriter(new OutputStreamWriter(list.get(i).getOutputStream()),
-									true);// »ñÈ¡Ä¿±êsocketµÄÊä³öÁ÷
-							pw.println(addr2 + " ¶ÔÄã Ëµ: " + message.substring(end));// Êä³ö×Ö·û´®Ê£Óà²¿·Ö
 
-							System.out.println(addr2 + "¶Ô" + list.get(i).getPort() + "·¢ÆğË½ÁÄ£º" + message.substring(end));
-						}
+				} else if (message.startsWith("@")) {
+					int end = message.indexOf(" ");
+					String findAddr = message.substring(1, end);
+					if (map.containsKey(findAddr)) {
+						Socket socket = map.get(findAddr);
+						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+						pw.println(nickname + "å¯¹ä½ å‘èµ·ç§èŠï¼š" + message.substring(end));
 					}
-
-				} else {// ·ñÔòÈºÁÄ
-					for (int i = 0; i < list.size(); i++) {// ±éÀú¼¯ºÏÖĞµÄÃ¿Ò»¸ösocket¶ÔÏó
-						PrintWriter pw = new PrintWriter(new OutputStreamWriter(list.get(i).getOutputStream()), true);// Ã¿Ò»¸ö¶ÔÏó¶¼»ñÈ¡Êä³öÁ÷
-						pw.println(clientsocket.getPort() + " Ëµ: " + message);// Êä³ö×Ö·û´®
+				} else {// éå†æ•´ä¸ªmapçš„value
+					Collection<Socket> values = map.values();
+					for (Socket socket : values) {
+						PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+						pw.println(nickname + "è¯´ï¼š" + message);
 					}
-					System.out.println(clientsocket.getPort() + " Ëµ: " + message);
 				}
 			}
 		} catch (IOException e) {

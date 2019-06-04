@@ -4,28 +4,32 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 public class Method {
-	// ÏÂÏß·½·¨
-	public void XiaXian(Socket socket, List<Socket> list) {
-		for (int i = 0; i < list.size(); i++) {
-			try {// ±éÀú¼¯ºÏ¸æËßÃ¿Ò»¸ö¿Í»§¶Ëµ±Ç°¿Í»§¶ËÏÂÏßÁË
-				PrintWriter pw = new PrintWriter(new OutputStreamWriter(list.get(i).getOutputStream()), true);
-				pw.println(socket.getPort() + "ÏÂÏß");
-			} catch (IOException e) {
-				e.printStackTrace();
+	// ä¸‹çº¿æ–¹æ³•
+	public void XiaXian(HashMap<String, Socket> map, String nickname) {
+		try {
+			Collection<Socket> values = map.values();
+			for (Socket socket : values) {
+				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println(nickname + "ä¸‹çº¿äº†");
+				Thread.currentThread().stop();
 			}
+		} catch (IOException e) {
 		}
-		list.remove(socket);
+		
 	}
-	// ÐÂ¿Í»§¶Ë¼ÓÈë·½·¨
-	public void NewClient(List<Socket> list, Socket socket) {
-		try {// ±éÀú¼¯ºÏ¸æËßÃ¿Ò»¸ö¿Í»§¶Ëµ±Ç°¿Í»§¶ËÉÏÏßÁË
-			for (int i = 0; i < list.size(); i++) {
-				Socket soc = list.get(i);
-				PrintWriter pw = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()), true);
-				pw.println(socket.getPort() + "½øÈëÁÄÌìÊÒ£¬Ë½ÁÄÇëÓÃ@+ºÅÂë+¿Õ¸ñ+ÄÚÈÝ");
+
+	// ä¸Šçº¿æ–¹æ³•
+	public void NewClient(HashMap<String, Socket> map, String nickname) {
+		try {
+			Collection<Socket> values = map.values();
+			for (Socket socket : values) {
+				PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println(nickname + "ä¸Šçº¿äº†");
 			}
 		} catch (IOException e) {
 		}

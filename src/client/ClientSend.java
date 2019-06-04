@@ -5,12 +5,12 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ClientSend extends Thread {
+public class ClientSend implements Runnable {
 	private Socket socket;
 
 	public ClientSend(Socket socket) {
 		this.socket = socket;
-	}
+	}  
 
 	public void run() {
 		String message;

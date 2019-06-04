@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-public class ClientReceive extends Thread {
+public class ClientReceive implements Runnable {
 	private Socket socket;
 	public ClientReceive(Socket socket) {
-		this.socket = socket;
+		this.socket = socket;   
 	}
 	public void run() {
 		try {

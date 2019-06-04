@@ -1,15 +1,50 @@
 package client;
 
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
+
+import daoimpl.UserDaoImpl;
 
 public class ClientStart {
 	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		UserDaoImpl user = new UserDaoImpl();
 		try {
-			Socket socket = new Socket("localhost", 2014);
-			ClientSend send = new ClientSend(socket); // ´´½¨·¢ËÍÏß³Ì
-			ClientReceive receive = new ClientReceive(socket); // ´´½¨½ÓÊÕÏß³Ì
-			send.start()	; // Æô¶¯·¢ËÍÏß³Ì
-			receive.start(); // Æô¶¯½ÓÊÕÏß³Ì
+			System.out.println("æ¬¢è¿æ¥åˆ°èŠå¤©å®¤è¯·è¾“å…¥é€‰é¡¹1.ç™»å½•  2.æ³¨å†Œ");
+			if (sc.nextInt() == 2) {
+				System.out.println("è¯·è¾“å…¥æ˜µç§°");
+				String nickname = sc.next();
+				System.out.println("è¯·è¾“å…¥å¯†ç ");
+				String password1 = sc.next();
+				System.out.println("è¯·å†æ¬¡è¾“å…¥å¯†ç ");
+				String password2 = sc.next();
+				if (password1.equals(password2)) {
+					String register = user.register(nickname, password1);
+					System.out.println(register);
+					// è¿™é‡Œè·³è½¬ç™»å½•
+				}
+			} else {
+				System.out.println("è¯·è¾“å…¥chatnum");
+				long chatnum = sc.nextInt();
+				System.out.println("è¯·è¾“å…¥å¯†ç ");
+				String password = sc.next();
+				String login = user.login(chatnum, password);
+				if(login!=null) {
+					Socket socket = new Socket("localhost", 2014);
+					PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
+					pw.write(login+"\n");
+					pw.flush();
+					ClientSend send = new ClientSend(socket);
+					ClientReceive receive = new ClientReceive(socket);
+					Thread t1 = new Thread(send);
+					Thread t2 = new Thread(receive);
+					t1.start();
+					t2.start();
+				}else {
+					System.out.println("ç™»é™†å¤±è´¥ï¼Œè¯·é‡æ–°ç™»å½•");
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
